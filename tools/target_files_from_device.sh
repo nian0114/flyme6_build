@@ -156,7 +156,7 @@ function updateSystemPartitionSize {
     SYSTEM_PARTITION_SIZE16=`echo "obase=16;$SYSTEM_PARTITION_SIZE"|bc`
     #echo "system partition size is 0x$SYSTEM_PARTITION_SIZE16"
     if [ x"$SYSTEM_PARTITION_SIZE16" != x ]; then
-        sed -i "s#system_size=0x50000000#system_size=0x$SYSTEM_PARTITION_SIZE16#g" $OEM_TARGET_DIR/META/misc_info.txt
+        sed -i "s/system_size.*/system_size\=0x$SYSTEM_PARTITION_SIZE16/g" $OEM_TARGET_DIR/META/misc_info.txt
     fi
     echo "<< get system partition size ..."
 }
