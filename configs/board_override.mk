@@ -99,11 +99,15 @@ BOARD_PROPERTY_FOLLOW_BASE := \
 
 BOARD_SERVICES += \
 
-BOARD_PREBUILT_PACKAGE_framework := \
+BOARD_PREBUILT_FOLDER := \
     flyme \
     meizu \
     com/flyme \
     com/meizu
+
+BOARD_PREBUILT_PACKAGE_framework := $(BOARD_PREBUILT_FOLDER)
+
+BOARD_PREBUILT_PACKAGE_services := $(BOARD_PREBUILT_FOLDER)
 
 # if the app was set in REDUCE_RESOURCES_EXCLUDE_APPS, it will not reduce resources
 REDUCE_RESOURCES_EXCLUDE_APPS += \
