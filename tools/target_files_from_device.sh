@@ -9,6 +9,7 @@
 ################################################################################################################
 
 PRJ_ROOT=`pwd`
+USER=`whoami`
 ADB="adb"
 
 CHECK_SU=$PORT_ROOT/tools/check-su
@@ -19,6 +20,7 @@ OTA_FROM_TARGET_FILES=$TOOL_DIR/releasetools/ota_from_target_files
 SYSTEM_INFO_PROCESS=$TOOL_DIR/releasetools/systeminfoprocess.py
 RECOVERY_LINK=$TOOL_DIR/releasetools/recoverylink.py
 GET_INFO_FROM_SCRIPT=$TOOL_DIR/getInfoFromScript.py
+DAT_PACKING_TOOL=$TOOL_DIR/releasetools/sdat2img.py
 
 OUT_DIR=$PRJ_ROOT/out
 OUT_OTA_DIR=$OUT_DIR/ota
@@ -31,11 +33,14 @@ META_DIR=$OEM_TARGET_DIR/META
 RECOVERY_ETC_DIR=$OEM_TARGET_DIR/RECOVERY/RAMDISK/etc
 
 OTA_PACKAGE=$PRJ_ROOT/ota.zip
+ROM_PACKAGE=$PRJ_ROOT/rom.zip
+DAT_PACKAGE=$OUT_OTA_DIR/system.new.dat
 OEM_TARGET_ZIP=$OUT_DIR/oem_target_files.zip
 VENDOR_TARGET_ZIP=$OUT_DIR/vendor_target_files.zip
 OUTPUT_OTA_PACKAGE=$OUT_DIR/vendor_ota.zip
 
 FROM_OTA=0
+FROM_DAT=0
 ROOT_STATE="system_root"
 
 FROM_RECOVERY=0
@@ -56,13 +61,18 @@ function checkForEnvPrepare {
         echo "<< ERROR: Can not find $PRJ_ROOT/recovery.fstab!!"
         exit $ERR_NOT_PREPARE_RECOVERY
     fi
-    $ADB shell ls / > /dev/null 2>&1
-    if [ $? != 0 -a -f $OTA_PACKAGE ];then
+
+    if [ -f $OTA_PACKAGE ];then
         echo "<< Device is not online, but ota.zip is exist."
         echo "<< Config Makefile from $OTA_PACKAGE."
         FROM_OTA=1
     fi
-    echo "<< check essential files existing done"
+
+    if [ -f $ROM_PACKAGE ];then
+        echo "<< Device is not online, but system.new.dat is exist."
+        echo "<< Config Makefile from $ROM_PACKAGE."
+        FROM_DAT=1
+    fi
 }
 
 # wait for the device to be online or timeout
@@ -83,6 +93,13 @@ function waitForDeviceOnline {
         echo "<< ERROR: Please ensure adb can find your device and then rerun this script!!"
         exit $ERR_USB_NOT_CONNECTED
     fi
+}
+
+# wait for .dat file
+function waitForDAT {
+    mkdir -p system
+    python $DAT_PACKING_TOOL $OUT_OTA_DIR/system.transfer.list $OUT_OTA_DIR/system.new.dat system.img &> /dev/null
+    sudo mount -t ext4 -o loop system.img system/
 }
 
 # check device status
@@ -181,6 +198,7 @@ function updateSystemPartitionSize {
 # get system files info from phone
 function buildSystemInfo {
     echo ">> get filesystem_config.txt from phone ..."
+    if [ $FROM_DAT != 1 ];then
     waitForDeviceOnline
     adb push $TOOL_DIR/releasetools/getfilesysteminfo.sh /data/local/tmp
 
@@ -201,6 +219,12 @@ function buildSystemInfo {
     fi
 
     adb pull /data/local/tmp/file.info $META_DIR/
+    else
+        waitForDAT
+        chmod 0777 $TOOL_DIR/releasetools/getfilesysteminfofromfile.sh
+        . $TOOL_DIR/releasetools/getfilesysteminfofromfile.sh
+    fi
+
     $SYSTEM_INFO_PROCESS $META_DIR/file.info $META_DIR/system.info $META_DIR/link.info
 
     cat $META_DIR/system.info | sed '/\bsuv\b/d;/\bsu\b/d;/\binvoke-as\b/d' | sort > $META_DIR/filesystem_config.txt
@@ -220,6 +244,7 @@ function buildSystemInfo {
 # build apkcerts.txt from packages.xml
 function buildApkcerts {
     echo ">> build apkcerts.txt from device ..."
+	if [ $FROM_DAT != 1 ];then
     if [ x"$ROOT_STATE" = x"system_root" ];then
         adb shell su -c "chmod 666 /data/system/packages.xml"
     else
@@ -234,6 +259,9 @@ function buildApkcerts {
     if [ ! -f $META_DIR/apkcerts.txt ];then
         echo "<< ERROR: Failed to create apkcerts.txt!!"
         exit $ERR_MISSION_FAILED
+	    fi
+	else
+		cp -rf $PORT_BUILD/cm_apkcerts.txt $META_DIR/apkcerts.txt
     fi
     echo "<< build apkcerts.txt from device done"
     echo "* out ==> $META_DIR/apkcerts.txt"
@@ -348,12 +376,19 @@ function pullSpecialSelabelFile {
 # build the SYSTEM dir under target_files
 function buildSystemDir {
     echo ">> retrieve whole /system from device (time-costly, be patient) ..."
+        if [ $FROM_DAT != 1 ];then
     adb pull /system $SYSTEM_DIR 2>&1 | tee $OUT_DIR/system-pull.log
     pullSpecialSelabelFile
     find $SYSTEM_DIR -name su | xargs rm -f
     find $SYSTEM_DIR -name .suv | xargs rm -f
     find $SYSTEM_DIR -name invoke-as | xargs rm -f
     dealwithSystemPullLog $OUT_DIR/system-pull.log
+	else
+	    sudo chown -R $USER:$USER system
+	    mkdir -p $SYSTEM_DIR
+            rm -rf $SYSTEM_DIR/*
+            cp -rf system/* $SYSTEM_DIR
+	fi
     echo "<< retrieve whole /system from device (time-costly, be patient) done"
 }
 
@@ -388,6 +423,13 @@ function zipTargetFiles {
     echo "<< zip $OEM_TARGET_ZIP from $OEM_TARGET_DIR done"
 }
 
+function umountDATPackage()
+{
+	sudo umount system
+	rm -rf system
+	rm -rf system.img
+}
+
 # pull files and info from phone and build a target file
 function targetFromPhone {
     checkRecovery
@@ -402,6 +444,19 @@ function targetFromPhone {
 
     prepareBootRecovery
     zipTargetFiles
+}
+
+function targetFromDAT {
+    checkDATPackage
+    copyTargetFilesTemplate
+	
+    buildSystemInfo
+    buildApkcerts
+    buildSystemDir
+
+    prepareBootRecovery
+    zipTargetFiles
+    umountDATPackage
 }
 
 # check for files preparing [from package]
@@ -421,6 +476,14 @@ function checkOtaPackage {
         echo "   Please check whether $PRJ_ROOT/ota.zip is a complete ota package"
         exit $ERR_OTA_INCOMPATIBLE
     fi
+}
+
+# check for files preparing [from dat]
+function checkDATPackage {
+    rm -rf $OUT_OTA_DIR
+    mkdir -p $OUT_DIR
+    echo ">> check $ROM_PACKAGE ..."
+    unzip -q $ROM_PACKAGE -d $OUT_OTA_DIR
 }
 
 # get system files info from META in ota package
@@ -514,10 +577,12 @@ if [ $# != 1 ];then
     usage
 elif [ "$1" = "target" ];then
     checkForEnvPrepare
-    if [ $FROM_OTA = 0 ];then
-        targetFromPhone
-    else
+    if [ $FROM_OTA == 1 ];then
         targetFromPackage
+    elif [ $FROM_DAT == 1 ];then
+	targetFromDAT
+    else
+        targetFromPhone
     fi
 elif [ "$1" = "ota" ];then
     buildOtaPackage
