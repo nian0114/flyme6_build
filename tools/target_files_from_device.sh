@@ -378,7 +378,6 @@ function buildSystemDir {
     echo ">> retrieve whole /system from device (time-costly, be patient) ..."
         if [ $FROM_DAT != 1 ];then
     adb pull /system $SYSTEM_DIR 2>&1 | tee $OUT_DIR/system-pull.log
-    pullSpecialSelabelFile
     find $SYSTEM_DIR -name su | xargs rm -f
     find $SYSTEM_DIR -name .suv | xargs rm -f
     find $SYSTEM_DIR -name invoke-as | xargs rm -f
