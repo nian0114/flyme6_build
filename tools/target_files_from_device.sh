@@ -38,6 +38,7 @@ OUTPUT_OTA_PACKAGE=$OUT_DIR/vendor_ota.zip
 FROM_OTA=0
 ROOT_STATE="system_root"
 
+FROM_RECOVERY=0
 ######## Error Exit Num ##########
 ERR_USB_NOT_CONNECTED=151
 ERR_DEVICE_NOT_ROOTED=152
@@ -84,24 +85,39 @@ function waitForDeviceOnline {
     fi
 }
 
+# check device status
+function checkRecovery {
+    if adb devices | grep -i "recovery" > /dev/null; then
+        FROM_RECOVERY=1
+    	adb shell mount -o remount,rw /system
+		adb push $TOOL_DIR/releasetools/ls /sbin
+    else
+        FROM_RECOVERY=0 
+    fi
+}
+
 # check system root state
 function checkRootState {
     echo ">> Check root state of phone ..."
     waitForDeviceOnline
-    SECURE_PROP=$(adb shell cat /default.prop | grep -o "ro.secure=\w")
-    DEBUG_PROP=$(adb shell cat /default.prop | grep -o "ro.debuggable=\w")
+    if [ $FROM_RECOVERY == 0 ];then
+	    SECURE_PROP=$(adb shell cat /default.prop | grep -o "ro.secure=\w")
+	    DEBUG_PROP=$(adb shell cat /default.prop | grep -o "ro.debuggable=\w")
 
-    $CHECK_SU
-    local ret=$?
-    if [ $ret == 0 ]; then
-        ROOT_STATE="system_root"
-    elif [ "$SECURE_PROP" = "ro.secure=0" -o "$DEBUG_PROP" = "ro.debuggable=1" ];then
-        ROOT_STATE="kernel_root"
-        adb root
-        waitForDeviceOnline
+	    $CHECK_SU
+	    local ret=$?
+	    if [ $ret == 0 ]; then
+		ROOT_STATE="system_root"
+	    elif [ "$SECURE_PROP" = "ro.secure=0" -o "$DEBUG_PROP" = "ro.debuggable=1" ];then
+		ROOT_STATE="kernel_root"
+		adb root
+		waitForDeviceOnline
+	    else
+		echo "<< ERROR: Not a root phone, please root this device firstly!!"
+		exit $ERR_DEVICE_NOT_ROOTED;
+	    fi
     else
-        echo "<< ERROR: Not a root phone, please root this device firstly!!"
-        exit $ERR_DEVICE_NOT_ROOTED;
+	ROOT_STATE="kernel_root"
     fi
 
     echo "<< Check root state of phone done."
@@ -374,6 +390,7 @@ function zipTargetFiles {
 
 # pull files and info from phone and build a target file
 function targetFromPhone {
+    checkRecovery
     checkRootState
     copyTargetFilesTemplate
     updateSystemPartitionSize
