@@ -106,7 +106,7 @@ function waitForDAT {
 function checkRecovery {
     if adb devices | grep -i "recovery" > /dev/null; then
         FROM_RECOVERY=1
-    	adb shell mount -o remount,rw /system
+    	adb shell mount -a
 		adb push $TOOL_DIR/releasetools/ls /sbin
     else
         FROM_RECOVERY=0 
