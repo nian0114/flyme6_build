@@ -5,7 +5,7 @@ FILE_INFO=/data/local/tmp/file.info
 function traverse_dir {
     local root=$1
     # Using "-Z" to get the selable
-    ls -a -Z ${root} | while read line
+    ls -a -Z ${root} | sed '/drwxr-xr-x u:object_r:system_file:s0        \./d' | sed '/drwxrwxrwt u:object_r:rootfs:s0             \.\./d' | sed '/^.*rfs_system.*/d' | while read line
     do
         name=${line##* }
         if [ "${line:0:1}" = "d" ]; then # directory
