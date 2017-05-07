@@ -34,6 +34,7 @@ RECOVERY_ETC_DIR=$OEM_TARGET_DIR/RECOVERY/RAMDISK/etc
 
 OTA_PACKAGE=$PRJ_ROOT/ota.zip
 ROM_PACKAGE=$PRJ_ROOT/rom.zip
+TARGET_PACKAGE=$PRJ_ROOT/target_files.zip
 DAT_PACKAGE=$OUT_OTA_DIR/system.new.dat
 OEM_TARGET_ZIP=$OUT_DIR/oem_target_files.zip
 VENDOR_TARGET_ZIP=$OUT_DIR/vendor_target_files.zip
@@ -41,6 +42,7 @@ OUTPUT_OTA_PACKAGE=$OUT_DIR/vendor_ota.zip
 
 FROM_OTA=0
 FROM_DAT=0
+FROM_TRAGET_FILES=0
 ROOT_STATE="system_root"
 
 FROM_RECOVERY=0
@@ -73,6 +75,12 @@ function checkForEnvPrepare {
         echo "<< Config Makefile from $ROM_PACKAGE."
         FROM_DAT=1
     fi
+
+    if [ -f $TARGET_PACKAGE ];then
+        echo "<< Device is not online, but system.new.dat is exist."
+        echo "<< Config Makefile from $ROM_PACKAGE."
+        FROM_TRAGET_FILES=1
+    fi
 }
 
 # wait for the device to be online or timeout
@@ -102,6 +110,21 @@ function waitForDAT {
     sudo mount -t ext4 -o loop system.img system/
 }
 
+# wait for target_file
+function waitForTargetFiles {
+    echo ">> copy $TARGET_FILES_TEMPLATE_DIR to $OEM_TARGET_DIR ..."
+    rm -rf $OEM_TARGET_DIR
+    rm -f $OEM_TARGET_ZIP
+    mkdir -p $OEM_TARGET_DIR
+    unzip -o -q target_files.zip "BOOT*" -d $OEM_TARGET_DIR/
+    unzip -o -q target_files.zip "META*" -d $OEM_TARGET_DIR/
+    unzip -o -q target_files.zip "OTA*" -d $OEM_TARGET_DIR/
+    unzip -o -q target_files.zip "RECOVERY*" -d $OEM_TARGET_DIR/
+    unzip -o -q target_files.zip "SYSTEM*" -d $OEM_TARGET_DIR/
+    mv -f $OEM_TARGET_DIR/SYSTEM $OEM_TARGET_DIR/system
+    echo "<< copy $TARGET_FILES_TEMPLATE_DIR to $OEM_TARGET_DIR ..."
+}
+
 # check device status
 function checkRecovery {
     if adb devices | grep -i "recovery" > /dev/null; then
@@ -109,7 +132,7 @@ function checkRecovery {
     	adb shell mount -a
 		adb push $TOOL_DIR/releasetools/ls /sbin
     else
-        FROM_RECOVERY=0 
+        FROM_RECOVERY=0
     fi
 }
 
@@ -198,36 +221,44 @@ function updateSystemPartitionSize {
 # get system files info from phone
 function buildSystemInfo {
     echo ">> get filesystem_config.txt from phone ..."
-    if [ $FROM_DAT != 1 ];then
-    waitForDeviceOnline
-    adb push $TOOL_DIR/releasetools/getfilesysteminfo.sh /data/local/tmp
-
-    # Create a new /data/local/tmp/file.info
-    adb shell rm /data/local/tmp/file.info
-    adb shell touch /data/local/tmp/file.info
-    adb shell chmod 666 /data/local/tmp/file.info
-
-    waitForDeviceOnline
-    if [ "$ROOT_STATE" = "system_root" ];then
-        #adb push $TOOL_DIR/releasetools/getsysteminfocommand /data/local/tmp
-        #echo "su < /data/local/tmp/getsysteminfocommand; exit" | adb shell
-        adb shell su -c /data/local/tmp/getfilesysteminfo.sh
-
-    else
-        adb shell chmod 0777 /data/local/tmp/getfilesysteminfo.sh
-        adb shell /data/local/tmp/getfilesysteminfo.sh
-    fi
-
-    adb pull /data/local/tmp/file.info $META_DIR/
-    else
+    if [ $FROM_DAT == 1 ];then
         waitForDAT
         chmod 0777 $TOOL_DIR/releasetools/getfilesysteminfofromfile.sh
         . $TOOL_DIR/releasetools/getfilesysteminfofromfile.sh
+    elif [ $FROM_TRAGET_FILES == 1 ];then
+        waitForTargetFiles
+        cd $OEM_TARGET_DIR/
+        chmod 0777 $TOOL_DIR/releasetools/getfilesysteminfofromzip.sh
+        . $TOOL_DIR/releasetools/getfilesysteminfofromzip.sh
+        cd -
+    else
+         waitForDeviceOnline
+        adb push $TOOL_DIR/releasetools/getfilesysteminfo.sh /data/local/tmp
+
+        # Create a new /data/local/tmp/file.info
+        adb shell rm /data/local/tmp/file.info
+        adb shell touch /data/local/tmp/file.info
+        adb shell chmod 666 /data/local/tmp/file.info
+
+        waitForDeviceOnline
+        if [ "$ROOT_STATE" = "system_root" ];then
+            #adb push $TOOL_DIR/releasetools/getsysteminfocommand /data/local/tmp
+            #echo "su < /data/local/tmp/getsysteminfocommand; exit" | adb shell
+            adb shell su -c /data/local/tmp/getfilesysteminfo.sh
+        else
+            adb shell chmod 0777 /data/local/tmp/getfilesysteminfo.sh
+            adb shell /data/local/tmp/getfilesysteminfo.sh
+        fi
+
+        adb pull /data/local/tmp/file.info $META_DIR/
     fi
 
     $SYSTEM_INFO_PROCESS $META_DIR/file.info $META_DIR/system.info $META_DIR/link.info
 
-    cat $META_DIR/system.info | sed '/\bsuv\b/d;/\bsu\b/d;/\binvoke-as\b/d' | sort > $META_DIR/filesystem_config.txt
+    if [ $FROM_TRAGET_FILES != 1 ];then
+        cat $META_DIR/system.info | sed '/\bsuv\b/d;/\bsu\b/d;/\binvoke-as\b/d' | sort > $META_DIR/filesystem_config.txt
+    fi
+
     cat $META_DIR/link.info   | sed '/\bsuv\b/d;/\bsu\b/d;/\binvoke-as\b/d' | sort > $META_DIR/linkinfo.txt
 
     if [ ! -f $META_DIR/filesystem_config.txt -o ! -f $META_DIR/linkinfo.txt ];then
@@ -245,10 +276,10 @@ function buildSystemInfo {
 function buildApkcerts {
     echo ">> build apkcerts.txt from device ..."
 	if [ $FROM_DAT != 1 ];then
-    if [ x"$ROOT_STATE" = x"system_root" ];then
-        adb shell su -c "chmod 666 /data/system/packages.xml"
-    else
-        adb shell chmod 666 /data/system/packages.xml
+        if [ x"$ROOT_STATE" = x"system_root" ];then
+            adb shell su -c "chmod 666 /data/system/packages.xml"
+        else
+            adb shell chmod 666 /data/system/packages.xml
     fi
 
     adb shell cat /data/system/packages.xml > $OEM_TARGET_DIR/packages.xml
@@ -460,6 +491,16 @@ function targetFromDAT {
     umountDATPackage
 }
 
+function targetFromTargetFiles {
+    buildSystemInfo
+    zipTargetFiles
+    clearTargetFiles
+}
+
+function clearTargetFiles{
+    rm -rf $PRJ_ROOT/target_files.zip
+}
+
 # check for files preparing [from package]
 function checkOtaPackage {
     echo ">> check $OTA_PACKAGE ..."
@@ -581,7 +622,9 @@ elif [ "$1" = "target" ];then
     if [ $FROM_OTA == 1 ];then
         targetFromPackage
     elif [ $FROM_DAT == 1 ];then
-	targetFromDAT
+	    targetFromDAT
+	elif [ $FROM_TRAGET_FILES == 1 ];then
+	    targetFromTargetFiles
     else
         targetFromPhone
     fi
