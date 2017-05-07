@@ -381,7 +381,9 @@ function buildSystemDir {
     find $SYSTEM_DIR -name su | xargs rm -f
     find $SYSTEM_DIR -name .suv | xargs rm -f
     find $SYSTEM_DIR -name invoke-as | xargs rm -f
-    dealwithSystemPullLog $OUT_DIR/system-pull.log
+    if [ $FROM_RECOVERY == 0 ];then
+		    dealwithSystemPullLog $OUT_DIR/system-pull.log
+fi
 	else
 	    sudo chown -R $USER:$USER system
 	    mkdir -p $SYSTEM_DIR
