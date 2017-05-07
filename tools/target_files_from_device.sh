@@ -494,11 +494,7 @@ function targetFromDAT {
 function targetFromTargetFiles {
     buildSystemInfo
     zipTargetFiles
-    clearTargetFiles
-}
-
-function clearTargetFiles{
-    rm -rf $PRJ_ROOT/target_files.zip
+    rm $PRJ_ROOT/target_files.zip
 }
 
 # check for files preparing [from package]
