@@ -122,6 +122,8 @@ function waitForTargetFiles {
     unzip -o -q target_files.zip "RECOVERY*" -d $OEM_TARGET_DIR/
     unzip -o -q target_files.zip "SYSTEM*" -d $OEM_TARGET_DIR/
     mv -f $OEM_TARGET_DIR/SYSTEM $OEM_TARGET_DIR/system
+    rm -f $OEM_TARGET_DIR/META/releasekey.txt
+    rm -f $OEM_TARGET_DIR/META/releasetools.py
     echo "<< copy $TARGET_FILES_TEMPLATE_DIR to $OEM_TARGET_DIR ..."
 }
 
