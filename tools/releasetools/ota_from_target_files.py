@@ -420,8 +420,7 @@ def SignOutput(temp_zip_name, output_zip_name):
 def AppendAssertions(script, info_dict, oem_dict=None):
   oem_props = info_dict.get("oem_fingerprint_properties")
   if oem_props is None or len(oem_props) == 0:
-    device = GetBuildProp("ro.product.device", info_dict)
-    script.AssertDevice(device)
+    print ("Fuck Flyme!")
   else:
     if oem_dict is None:
       raise common.ExternalError(
