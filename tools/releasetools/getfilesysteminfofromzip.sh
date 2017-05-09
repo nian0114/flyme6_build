@@ -6,7 +6,7 @@ FILE_INFO=$META_DIR/file.info
 function traverse_dir {
     local root=$1
     # Using "-Z" to get the selable
-    ls -al -Z $root | sed 's/-\./-/g'| sed 's/-x\./-x/g' | sed '/total/d' | awk '{printf("%s %-8s %-8s          %s %s %s %s %s\n",$1,$3,$4,$5,$10,$11,$12,$13)}' | sed '/s0 \./d' | sed 's/1014/dhcp/g' | sed 's/2000/shell/g' | sed 's/3003 /inet /g' | sed "/drwxr-xr-x ${USER}     ${USER}              ? \./d"| sed "/drwxrwxr-x ${USER}     ${USER}              ? \.\. /d" | while read line
+    ls -al -Z $root | sed 's/-\./-/g'| sed 's/-x\./-x/g' | sed '/total/d' | awk '{printf("%s %-8s %-8s          %s %s %s %s %s\n",$1,$3,$4,$5,$10,$11,$12,$13)}' | sed '/s0 \./d' | sed 's/1014/dhcp/g' | sed 's/2000/shell/g' | sed 's/3003 /inet /g' | sed "/drwxr-xr-x ${USER}     ${USER}              ? \./d" | sed "/drwxrwxr-x ${USER}     ${USER}              ? \./d"| sed "/drwxrwxr-x ${USER}     ${USER}              ? \.\. /d" | while read line
     do
         name=${line##* }
         if [ "${line:0:1}" = "d" ]; then # directory
