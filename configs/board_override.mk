@@ -73,6 +73,7 @@ BOARD_PROPERTY_FOLLOW_BASE := \
     persist.sys.static_blur_mode \
     persist.sys.meizu.region \
     persist.sys.meizu.codepage \
+    ro.build.version.incremental \
     ro.config.notification_sound \
     ro.config.ringtone \
     ro.config.alarm_alert \
