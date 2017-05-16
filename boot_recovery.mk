@@ -74,7 +74,9 @@ prepare_boot_ramdisk:
 	$(hide) rm -rf $(OUT_OBJ_BOOT);
 	$(hide) mkdir -p $(OUT_OBJ_BOOT);
 	$(hide) cp -r $(PRJ_BOOT_DIR)/* $(OUT_OBJ_BOOT);
+ifneq ($(strip $(PRODUCE_SEPOLICY_INJECT)),false)
 	$(hide) $(SEPOLICY_INJECT) $(OUT_OBJ_BOOT)/RAMDISK/sepolicy
+endif
 	$(hide) $(foreach prebuilt_pair,$(BOOT_PREBUILT_FILES),\
 			$(eval src_file := $(call word-colon,1,$(prebuilt_pair)))\
 			$(eval dst_file := $(call word-colon,2,$(prebuilt_pair)))\
