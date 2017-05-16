@@ -9,7 +9,12 @@ include $(PORT_BUILD)/custom/defines.mk
 endif
 
 include $(PORT_BUILD)/locals.mk
+
+ifeq ($(strip $(HOST_OS)),darwin)
+include $(PORT_BUILD)/defines_mac.mk
+else
 include $(PORT_BUILD)/defines.mk
+endif
 
 include $(PORT_BUILD)/configs/board_default.mk
 include $(PORT_BUILD)/configs/vendor_default.mk

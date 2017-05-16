@@ -1,6 +1,10 @@
 #!/bin/bash
 
-APKTOOL_IF_FRAMEWORK_DIR=~/apktool/framework
+if [ $HOST_OS == "darwin" ];then
+  APKTOOL_IF_FRAMEWORK_DIR=~/Library/apktool/framework
+else
+	APKTOOL_IF_FRAMEWORK_DIR=~/apktool/framework
+fi
 
 function isFrameworkApk()
 {
@@ -19,7 +23,7 @@ function updateApktoolYml()
     if [ x"$tags" != x ];then
         tagsName="-$tags"
     fi
-    
+
     #echo "tagsName:$tagsName"
     if [ -f $apktoolYml ];then
         #echo "APKTOOL_IF_FRAMEWORK_DIR: $APKTOOL_IF_FRAMEWORK_DIR"
@@ -42,7 +46,7 @@ function updateApktoolYml()
                    sed -i "/$resIdMatch/d"  $apktoolYml
                    sed -i "$lineNum a $resIdMatch"  $apktoolYml
                    sed -i "s/$resIdMatch/$resIdMatch2/g" $apktoolYml
-               fi      
+               fi
             done
 	fi
         if [ x"$tags" != x ];then

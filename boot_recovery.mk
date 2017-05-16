@@ -32,10 +32,11 @@ MKBOOTIMG                  := $(PORT_ROOT)/tools/$(HOST_OS)-x86/mkbootimg
 PATCH_BOOTIMG_SH           := $(PORT_ROOT)/tools/patch_bootimg.sh
 
 ###### pack boot ######
-bootimage:$(PATCH_BOOTIMG_SH) $(UNPACKBOOTIMG) $(MKBOOTFS) $(MKBOOTIMG) $(OUT_BOOT_IMG)
+bootimage:$(PATCH_BOOTIMG_SH) $(UNPACKBOOTIMG) $(MKBOOTFS) $(MKBOOTIMG)
 	$(hide) echo "* build boot.img out ==> $(OUT_DIR)/$(BOOT_IMG)"
 	$(hide) echo " "
 	$(hide) echo ">> prepare boot ramdisk from $(PRJ_BOOT_DIR) ..."
+	$(hide) mkdir -p $(OUT_BOOTABLE_IMAGES)
 	$(hide) cp $(PRJ_BOOT_IMG) $(OUT_BOOT_IMG)
 	@echo "Patching bootimg"
 	$(hide) TARGET_BOOT_DIR=$(OUT_OBJ_BOOT) \
