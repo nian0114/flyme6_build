@@ -74,7 +74,7 @@ check-project:
 	$(hide) echo "< Check project $(PRJ_NAME) done"
 
 ####################### clean #########################
-CLEAN_TARGETS += clean-out 
+CLEAN_TARGETS += clean-out
 
 .PHONY: clean-out
 clean-out:
@@ -328,7 +328,7 @@ $(OUT_OBJ_FRAMEWORK)/framework-res.apk.tmp: minSdkVersion := $(shell $(call getM
 $(OUT_OBJ_FRAMEWORK)/framework-res.apk.tmp: targetSdkVersion := $(shell $(call getTargetSdkVersionFromApktoolYml,\
 									$(VENDOR_FRAMEWORK_RES_OUT)/apktool.yml))
 $(OUT_OBJ_FRAMEWORK)/framework-res.apk.tmp: OUT_OBJ_FRAMEWORK_RES := $(OUT_OBJ_FRAMEWORK)/framework-res
-$(OUT_OBJ_FRAMEWORK)/framework-res.apk.tmp: $(FRAMEWORK_RES_SOURCE) 
+$(OUT_OBJ_FRAMEWORK)/framework-res.apk.tmp: $(FRAMEWORK_RES_SOURCE)
 	$(hide) echo ">>> build |target-files|SYSTEM|framework-res.apk| ..."
 	$(hide) rm -rf $(OUT_OBJ_FRAMEWORK_RES)
 	$(hide) mkdir -p $(OUT_OBJ_FRAMEWORK_RES)
@@ -610,7 +610,7 @@ endif
 TARGET_FILES_SYSTEM += add_channel
 
 .PHONY: add_channel
-add_channel: 
+add_channel:
 	$(hide) echo $(CHANNEL) > $(OUT_SYSTEM)/etc/channel
 endif
 
@@ -618,7 +618,7 @@ endif
 ifeq ($(strip $(wildcard $(PRJ_LOGO_BIN))),)
 LOGO_BIN_PARAM :=
 $(OUT_LOGO_BIN):
-	$(hide) :	
+	$(hide) :
 else
 LOGO_BIN_PARAM := -l $(OUT_LOGO_BIN)
 $(OUT_LOGO_BIN): $(PRJ_LOGO_BIN)
@@ -646,7 +646,7 @@ TARGET_FILES_SYSTEM += $(OUT_SYSTEM_BIN)/board_service
 endif
 
 $(OUT_SYSTEM_BIN)/board_service: obj_board_service := $(OUT_OBJ_BIN)/board_service
-$(OUT_SYSTEM_BIN)/board_service: 
+$(OUT_SYSTEM_BIN)/board_service:
 	@ echo ">> target-files:SYSTEM: generate $@ ..."
 	$(hide) rm -f $@
 	$(hide) mkdir -p $(OUT_SYSTEM_BIN)
@@ -760,7 +760,7 @@ $(BOARD_SYSTEM)/%: $(PREPARE_SOURCE)
 
 ################### clean ##############################
 .PHONY: clean
-clean: $(CLEAN_TARGETS) 
+clean: $(CLEAN_TARGETS)
 	$(hide) echo "< clean done"
 
 .PHONY: clean-all

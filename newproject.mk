@@ -55,7 +55,7 @@ $(PRJ_RECOVERY_FSTAB): unpack-recovery
 endif
 
 ./PHONY: prepare-vendor-boot
-prepare-vendor-boot : unpack-boot prepare-vendor
+prepare-vendor-boot : prepare-vendor
 	$(hide) echo ">> prepare vendor boot ..."
 	$(hide) rm -rf $(VENDOR_BOOT)
 	$(hide) if [ -d $(OUT_OBJ_BOOT) ]; then mv $(OUT_OBJ_BOOT) $(VENDOR_BOOT); fi;
