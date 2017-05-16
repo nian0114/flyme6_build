@@ -1,9 +1,11 @@
 #!/bin/bash
 #**************************************************#
-#This shell used to export PORT_ROOT 			      	
+#This shell used to export PORT_ROOT
 #**************************************************#
 TOPFILE=build/envsetup.sh
 PROJECT_MAX_DEPTH=3
+
+HOST_OS=$(uname -s | tr '[A-Z]' '[a-z]')
 
 if [ -f $TOPFILE ] ; then
    PORT_ROOT=$PWD
@@ -23,13 +25,13 @@ fi
 if [ -n "$PORT_ROOT" ]; then
     MATCH=$(echo $PATH | grep $PORT_ROOT)
     if [ "$MATCH" = "" ];then
-		PATH=$PORT_ROOT/tools:$PATH
+		PATH=$PORT_ROOT/tools:$PORT_ROOT/tools/${HOST_OS}-x86:$PATH
 		LD_LIBRARY_PATH=$PORT_ROOT/build/lib/:$LD_LIBRARY_PATH
 	export PATH LD_LIBRARY_PATH
     fi
     PORT_BUILD="$PORT_ROOT/build"
     #echo "set port_build, PORT_BUILD:$PORT_BUILD"
-    export PORT_ROOT PORT_BUILD
+    export PORT_ROOT PORT_BUILD HOST_OS
 fi
 
 
@@ -117,13 +119,13 @@ function unpack_systemimg()
 
             $SIMGTOIMG $systemimg $tmpImg
             sudo mount -t ext4 -o loop $tmpImg $tmpMnt
-            
+
             sudo cp -rf $tmpMnt/* $outdir
             sudo umount $tmpMnt
 
             rm -rf $tmpImg
             rm -rf $tmpMnt
-            
+
             echo ">>> success unpack $systemimg to $outdir"
             return 0
         else
