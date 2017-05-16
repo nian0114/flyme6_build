@@ -316,7 +316,7 @@ VENDOR_BUILD_PROP       := $(VENDOR_SYSTEM)/build.prop
 
 ###################### tools in path ######################
 AAPT           := $(PORT_ROOT)/tools/$(HOST_OS)-x86/aapt
-ZIPALIGN       := zipalign
+ZIPALIGN       := $(PORT_ROOT)/tools/$(HOST_OS)-x86/zipalign
 
 ############### tools in $(PORT_BUILD)/tools ##############
 PORT_BUILD_TOOLS         := $(PORT_BUILD)/tools
