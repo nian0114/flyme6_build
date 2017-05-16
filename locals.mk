@@ -1,7 +1,7 @@
 #
 # locals.mk
 # owner: coron
-# 
+#
 
 # set PRJ_ROOT to PWD
 PRJ_ROOT := $(PWD)
@@ -29,7 +29,7 @@ ROMER := $(strip $(patsubst ro.flyme.romer=%,%,$(filter ro.flyme.romer=%,$(overr
 # the version of the target
 # which would be set to build.prop by $(MAKE_BUILD_PROP)
 # eg:
-#	make xxx version = 
+#	make xxx version =
 ifneq ($(strip $(version)),)
 VERSION_NUMBER := $(version)
 else
@@ -76,7 +76,7 @@ space := $(empty) $(empty)
 comma := $(empty),$(empty)
 
 PRIVATE_PRODUCT_AAPT_CONFIG := $(subst $(space),$(comma),$(sort normal,$(PRODUCT_LOCALES)))
- 
+
 PRIVATE_PRODUCT_AAPT_PREF_CONFIG := $(DENSITY)
 
 ###################### Makefile ###########################
@@ -315,7 +315,7 @@ endif
 VENDOR_BUILD_PROP       := $(VENDOR_SYSTEM)/build.prop
 
 ###################### tools in path ######################
-AAPT           := aapt
+AAPT           := $(PORT_ROOT)/tools/$(HOST_OS)-x86/aapt
 ZIPALIGN       := zipalign
 
 ############### tools in $(PORT_BUILD)/tools ##############
