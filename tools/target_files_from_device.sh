@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 ################################################################################################################
 # Option:     target, ota;                                                                                     #
 # target:     This shell will pull files from phone, build apkcerts.txt and filesystem_config.txt from device, #
@@ -483,7 +483,7 @@ function targetFromPhone {
 function targetFromDAT {
     checkDATPackage
     copyTargetFilesTemplate
-	
+
     buildSystemInfo
     buildApkcerts
     buildSystemDir
@@ -580,7 +580,7 @@ function targetFromPackage {
     buildSystemInfoFromPackage
     buildApkcertsFromPackage
     buildSystemDirFromPackage
-    recoverSystemSymlink
+    #recoverSystemSymlink
 
     prepareBootRecovery
     zipTargetFiles
