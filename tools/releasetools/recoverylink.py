@@ -1,55 +1,25 @@
 #!/usr/bin/python
-
 import os
 import sys
-import shutil
 
-DEBUG = False
-
-link_info = sys.argv[1]
-root_path = sys.argv[2]
-
+path = sys.argv[1]
+linkfile_path = path + '/SYSTEM/linkinfo.txt'
+#print linkfile_path
 
 try:
-    file_handle = open(link_info)
-    lines = file_handle.read().split()
-    for line in lines:
+    file_object = open(linkfile_path)
+    linelist = file_object.read( ).split()
+    for line in linelist:
         line = line.rstrip()
-        link_item = line.split('|')
-        if len(link_item) >= 2:
-
-            # parse the link_src -> link_name
-            link_name = os.path.join(root_path, link_item[0])
-            link_src = link_item[1]
-
-            # unlink existing link_name if needed
-            if os.path.islink(link_name):
-                if DEBUG: print "unlink the existing %s" % link_name
-                os.unlink(link_name)
-            elif os.path.isfile(link_name):
-                if DEBUG: print "remove the existing %s, will re-create as link" % link_name
-                os.remove(link_name)
-            elif os.path.isdir(link_name):
-                if DEBUG: print "remove the existing dir %s, will re-create as link" % link_name
-                shutil.rmtree(link_name)
-
-            # update the link_src
-            if os.path.dirname(link_item[0]) == os.path.dirname(link_src):
-                link_src = os.path.basename(link_src)
-
-            if not os.path.exists(os.path.dirname(link_name)):
-                os.makedirs(os.path.dirname(link_name))
-
-            # relink
-            if DEBUG: print "link %s -> %s" % (link_src, link_name)
-            try:
-                os.symlink(link_src, link_name)
-            except:
-                print "Failed to link %s -> %s" % (link_src, link_name)
-
-        file_handle.close()
+        filepath = line.split('|')
+        link_name = filepath[0].replace('system', 'SYSTEM')
+        target = filepath[1]
+        cmd = 'cd ' + path + ';' + 'mkdir -p ' + os.path.dirname(link_name) + ';' + 'ln -sf ' + target + ' ' +  link_name + ';'
+        print cmd
+        os.popen(cmd)
 except IOError:
-    print "%s isn't exist" % link_info
+    print r"%s isn't exist" % linkfile_path
     sys.exit(1)
-
+file_object.close( )
+print r"Recovery link files success"
 sys.exit(0)

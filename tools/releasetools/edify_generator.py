@@ -123,26 +123,6 @@ class EdifyGenerator(object):
                device, device)
     self.script.append(cmd)
 
-  def AssertDeviceCoron(self, device, devicealias=None):
-    if not devicealias:
-      import string
-      cmd = ('assert(getprop("ro.product.device") == "%s" ||\0'
-             'getprop("ro.build.product") == "%s" || \0'
-	      'getprop("ro.product.device") == "%s" ||\0'
-	      'getprop("ro.build.product") == "%s");' % (device, device, string.lower(device), string.lower(device)))
-      self.script.append(self.WordWrap(cmd))
-    else:
-      devices = devicealias.split(',')
-      devices.append(device)
-      cmd = ("assert(" +
-             " ||\0".join(['getprop("ro.product.device") == "%s"' % (b,)
-                           for b in devices]) +
-             " ||\0" +
-             " ||\0".join(['getprop("ro.build.product") == "%s"' % (c,)
-                           for c in devices]) +
-             ");")
-      self.script.append(self.WordWrap(cmd))
-
   def AssertSomeBootloader(self, *bootloaders):
     """Asert that the bootloader version is one of *bootloaders."""
     cmd = ("assert(" +
@@ -327,16 +307,12 @@ class EdifyGenerator(object):
 
   def SetPermissions(self, fn, uid, gid, mode, selabel, capabilities):
     """Set file ownership and permissions."""
-    if uid == None or gid == None or mode == None:
-      return
-
     if not self.info.get("use_set_metadata", False):
       self.script.append('set_perm(%d, %d, 0%o, "%s");' % (uid, gid, mode, fn))
     else:
-      if capabilities is None:
-        capabilities = "0x0"
-      cmd = 'set_metadata("%s", "uid", %d, "gid", %d, "mode", 0%o, ' \
-          '"capabilities", %s' % (fn, uid, gid, mode, capabilities)
+      cmd = 'set_metadata("%s", "uid", %d, "gid", %d, "mode", 0%o' % (fn, uid, gid, mode)
+      if capabilities is not None:
+        cmd += ', "capabilities", "%s"' % capabilities
       if selabel is not None:
         cmd += ', "selabel", "%s"' % selabel
       cmd += ');'
@@ -351,13 +327,6 @@ class EdifyGenerator(object):
     else:
       if capabilities is None:
         capabilities = "0x0"
-
-      if uid is None:
-        uid = 0
-
-      if gid is None:
-        gid = 0
-
       cmd = 'set_metadata_recursive("%s", "uid", %d, "gid", %d, ' \
           '"dmode", 0%o, "fmode", 0%o, "capabilities", %s' \
           % (fn, uid, gid, dmode, fmode, capabilities)
@@ -397,8 +366,6 @@ class EdifyGenerator(object):
     path for the binary instead of input_zip."""
 
     self.UnmountAll()
-
-    self.OverlayUpdaterScript(input_zip)
 
     common.ZipWriteStr(output_zip, "META-INF/com/google/android/updater-script",
                        "\n".join(self.script) + "\n")

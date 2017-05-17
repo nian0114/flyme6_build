@@ -37,12 +37,7 @@ from hashlib import sha1 as sha1
 
 class Options(object):
   def __init__(self):
-    platform_search_path = {
-        "linux2": "out/host/linux-x86",
-        "darwin": "out/host/darwin-x86",
-    }
-
-    self.search_path = os.path.join(os.environ["PORT_BUILD"], "tools");
+    self.search_path = os.path.join(os.environ["PORT_ROOT"], "build/tools");
     self.signapk_path = "signapk.jar"  # Relative to search_path
     self.extra_signapk_args = []
     self.java_path = "java"  # Use the one on the path by default.
@@ -59,8 +54,6 @@ class Options(object):
     self.device_specific = None
     self.extras = {}
     self.info_dict = None
-    self.source_info_dict = None
-    self.target_info_dict = None
     self.worker_threads = None
 
 

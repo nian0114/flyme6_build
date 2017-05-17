@@ -241,9 +241,9 @@ class Item(object):
   def __init__(self, itemset, name, is_dir=False):
     self.itemset = itemset
     self.name = name
-    self.uid = None
-    self.gid = None
-    self.mode = None
+    self.uid = 0
+    self.gid = 0
+    self.mode = 0o644
     self.selabel = None
     self.capabilities = None
     self.is_dir = is_dir
@@ -342,7 +342,7 @@ class Item(object):
       # We only need to issue set_perm/set_perm_recursive commands if we're
       # supposed to be something different.
       if item.is_dir:
-        if current != item.best_subtree and item.name != "data" and item.name != "data/media":
+        if current != item.best_subtree:
           script.SetPermissionsRecursive("/"+item.name, *item.best_subtree)
           current = item.best_subtree
 
@@ -410,13 +410,10 @@ def SignOutput(temp_zip_name, output_zip_name):
   pw = key_passwords[OPTIONS.package_key]
 
   common.SignFile(temp_zip_name, output_zip_name, OPTIONS.package_key, pw,
-                  whole_file=True)
+                  whole_file=False)
 
 
 def AppendAssertions(script, info_dict, oem_dict=None):
-  if not UseAssertions(info_dict):
-    return
-
   oem_props = info_dict.get("oem_fingerprint_properties")
   if oem_props is None or len(oem_props) == 0:
     device = GetBuildProp("ro.product.device", info_dict)
@@ -669,9 +666,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
       vendor_items.Get("vendor").SetPermissions(script)
 
   #common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
-
-  if boot_img:
-    common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
+  common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
 
   script.ShowProgress(0.05, 5)
   script.WriteRawImage("/boot", "boot.img")
@@ -777,7 +772,7 @@ def WriteBlockIncrementalOTAPackage(target_zip, source_zip, output_zip):
       output_zip=output_zip,
       script=script,
       metadata=metadata,
-      info_dict=OPTIONS.source_info_dict)
+      info_dict=OPTIONS.info_dict)
 
   # TODO: Currently this works differently from WriteIncrementalOTAPackage().
   # This function doesn't consider thumbprints when writing
@@ -895,11 +890,10 @@ else if get_stage("%(bcb_dev)s") != "3/3" then
     # patching on a device that's already on the target build will damage the
     # system. Because operations like move don't check the block state, they
     # always apply the changes unconditionally.
-    if OPTIONS.verify_fingerprint:
-      if blockimgdiff_version <= 2:
-        script.AssertSomeFingerprint(source_fp)
-      else:
-        script.AssertSomeFingerprint(source_fp, target_fp)
+    if blockimgdiff_version <= 2:
+      script.AssertSomeFingerprint(source_fp)
+    else:
+      script.AssertSomeFingerprint(source_fp, target_fp)
   else:
     if blockimgdiff_version <= 2:
       script.AssertSomeThumbprint(
@@ -1149,7 +1143,7 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
       output_zip=output_zip,
       script=script,
       metadata=metadata,
-      info_dict=OPTIONS.source_info_dict)
+      info_dict=OPTIONS.info_dict)
 
   system_diff = FileDifference("system", source_zip, target_zip, output_zip)
   script.Mount("/system", recovery_mount_options)
@@ -1165,8 +1159,7 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
                                    OPTIONS.source_info_dict)
 
   if oem_props is None:
-    if OPTIONS.verify_fingerprint:
-        script.AssertSomeFingerprint(source_fp, target_fp)
+    script.AssertSomeFingerprint(source_fp, target_fp)
   else:
     script.AssertSomeThumbprint(
         GetBuildProp("ro.build.thumbprint", OPTIONS.target_info_dict),
@@ -1507,8 +1500,7 @@ def main(argv):
     elif o == "--block":
       OPTIONS.block_based = True
     elif o in ("-b", "--binary"):
-      if os.path.exists(a):
-        OPTIONS.updater_binary = a
+      OPTIONS.updater_binary = a
     elif o in ("--no_fallback_to_full",):
       OPTIONS.fallback_to_full = False
     elif o == "--stash_threshold":
@@ -1549,10 +1541,7 @@ def main(argv):
     sys.exit(1)
 
   if OPTIONS.extra_script is not None:
-    if os.path.exists(OPTIONS.extra_script):
-      OPTIONS.extra_script = open(OPTIONS.extra_script).read()
-    else:
-      OPTIONS.extra_script = None
+    OPTIONS.extra_script = open(OPTIONS.extra_script).read()
 
   print "unzipping target target-files..."
   OPTIONS.input_tmp, input_zip = common.UnzipTemp(args[0])
