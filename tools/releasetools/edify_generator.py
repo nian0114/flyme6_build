@@ -376,12 +376,3 @@ class EdifyGenerator(object):
       data = open(input_path, "rb").read()
     common.ZipWriteStr(output_zip, "META-INF/com/google/android/update-binary",
                        data, perms=0o755)
-
-  def OverlayUpdaterScript(self, input_zip):
-    try:
-      data = input_zip.read("OTA/updater-script")
-      self.script = []
-      self.script.append(data)
-      print "Using OTA/updater-script..."
-    except KeyError:
-      pass

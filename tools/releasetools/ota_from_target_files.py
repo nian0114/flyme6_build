@@ -149,7 +149,7 @@ def MostPopularKey(d, default):
 def IsSymlink(info):
   """Return true if the zipfile.ZipInfo object passed in represents a
   symlink."""
-  return (info.external_attr >> 16) == 0o120777
+  return (info.external_attr >> 28) == 0o12
 
 def IsRegular(info):
   """Return true if the zipfile.ZipInfo object passed in represents a
@@ -166,6 +166,10 @@ def ClosestFileMatch(src, tgtfiles, existing):
   result = tgtfiles.get("path:" + src.name)
   if result is not None:
     return result
+
+  # MIUI ADD:
+  # disable rename support
+  return None
 
   if not OPTIONS.target_info_dict.get("update_rename_support", False):
     return None
