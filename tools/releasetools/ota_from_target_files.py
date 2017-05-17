@@ -676,6 +676,10 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.WriteRawImage("/boot", "boot.img")
 
   script.ShowProgress(0.2, 10)
+  script.Print("Flashing SuperSU...")
+  script.UnpackPackageDir("system/supersu", "/tmp/supersu")
+  script.AppendExtra("""run_program("/sbin/busybox", "unzip", "/tmp/supersu/supersu.zip", "META-INF/com/google/android/*", "-d", "/tmp/supersu");
+run_program("/sbin/busybox", "sh", "/tmp/supersu/META-INF/com/google/android/update-binary", "dummy", "1", "/tmp/supersu/supersu.zip");""");
   device_specific.FullOTA_InstallEnd()
 
   if OPTIONS.extra_script is not None:
