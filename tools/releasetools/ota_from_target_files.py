@@ -1096,7 +1096,6 @@ class FileDifference(object):
       tf, sf, _, _ = item
       script.ApplyPatch("/"+sf.name, "-", tf.size, tf.sha1, sf.sha1,
                         "patch/" + sf.name + ".p")
-    script.SetPermissions("/system/build.prop", 0, 0, 0o644, None, None)
 
   def EmitRenames(self, script):
     if len(self.renames) > 0:
@@ -1197,9 +1196,6 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
   #  0.8 for applying patches (ApplyPatch calls)
   #  0.1 for unpacking verbatim files, symlinking, and doing the
   #      device-specific commands.
-
-  AppendAssertions(script, OPTIONS.target_info_dict, oem_dict)
-  device_specific.IncrementalOTA_Assertions()
 
   # Two-step incremental package strategy (in chronological order,
   # which is *not* the order in which the generated script has
@@ -1426,7 +1422,6 @@ else
 
   # Now that the symlinks are created, we can set all the
   # permissions.
-  script.AppendScript(temp_script)
 
   # Do device-specific installation (eg, write radio image).
   device_specific.IncrementalOTA_InstallEnd()
