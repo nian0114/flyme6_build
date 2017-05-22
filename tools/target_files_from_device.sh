@@ -594,9 +594,9 @@ function buildOtaPackage {
         exit $ERR_NOT_VENDOR_TARGET
     fi
     if [ x"$1" = x"block" ];then
-        $OTA_FROM_TARGET_FILES --no_prereq --block -k $PORT_ROOT/build/security/testkey $VENDOR_TARGET_ZIP $OUTPUT_OTA_PACKAGE
+        $OTA_FROM_TARGET_FILES --no_prereq --block -k $PORT_ROOT/build/security/testkey --no_signing $VENDOR_TARGET_ZIP $OUTPUT_OTA_PACKAGE
     else
-        $OTA_FROM_TARGET_FILES --no_prereq -k $PORT_ROOT/build/security/testkey $VENDOR_TARGET_ZIP $OUTPUT_OTA_PACKAGE
+        $OTA_FROM_TARGET_FILES --no_prereq -k $PORT_ROOT/build/security/testkey --no_signing $VENDOR_TARGET_ZIP $OUTPUT_OTA_PACKAGE
     fi
     if [ ! -f $OUTPUT_OTA_PACKAGE ];then
         echo "<< ERROR: Failed to build $OUTPUT_OTA_PACKAGE!!"

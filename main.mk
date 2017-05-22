@@ -706,10 +706,9 @@ $(PRJ_FULL_OTA_ZIP): $(OUT_TARGET_ZIP) $(OUT_LOGO_BIN)
 	$(hide) echo $(OUT_TARGET_ZIP) > $(PRJ_SAVED_TARGET_NAME)
 	$(hide) $(OTA_FROM_TARGET_FILES) \
 			$(if $(filter false,$(PRODUCE_BLOCK_BASED_OTA)),,--block) \
-			--binary $(PRJ_UPDATE_BINARY_OVERLAY) \
 			--no_prereq \
-			-e $(PRJ_UPDATER_SCRIPT_PART) \
 			-k $(OTA_CERT) \
+			--no_signing \
 			$(OUT_TARGET_ZIP) $(PRJ_FULL_OTA_ZIP) \
 			|| exit 51
 	$(hide) echo "< generate ota.zip from target-files.zip done"
