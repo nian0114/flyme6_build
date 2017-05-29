@@ -1189,7 +1189,6 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
       "/tmp/recovery.img", "recovery.img", OPTIONS.target_tmp, "RECOVERY")
   updating_recovery = (source_recovery.data != target_recovery.data)
 
-
   # Here's how we divide up the progress bar:
   #  0.1 for verifying the start state (PatchCheck calls)
   #  0.8 for applying patches (ApplyPatch calls)
