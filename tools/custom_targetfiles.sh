@@ -1,5 +1,12 @@
 #!/bin/bash
 
+function custom_flymeRes()
+{
+    if [ -f $SYSTEM_DIR/framework/flyme-res/flyme-res.apk ]; then
+        mv $SYSTEM_DIR/framework/flyme-res/flyme-res.apk $SYSTEM_DIR/framework/flyme-res/flyme-res.jar
+    fi
+}
+
 TARGET_FILES_DIR=$1
 VENDOR_FILES_DIR=`pwd`/vendor
 
@@ -11,3 +18,4 @@ RECOVERY_LINK=`pwd`/../../build/tools/releasetools/recoverylink.py
 cp -f $META_DIR/linkinfo.txt $SYSTEM_DIR
 python $RECOVERY_LINK $TARGET_FILES_DIR
 rm -f $SYSTEM_DIR/linkinfo.txt
+custom_flymeRes
