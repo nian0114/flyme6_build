@@ -898,9 +898,9 @@ else if get_stage("%(bcb_dev)s") != "3/3" then
     # system. Because operations like move don't check the block state, they
     # always apply the changes unconditionally.
     if blockimgdiff_version <= 2:
-      script.AssertSomeFingerprint(source_fp)
+      print ("Fuck Flyme!")
     else:
-      script.AssertSomeFingerprint(source_fp, target_fp)
+      print ("Fuck Flyme!")
   else:
     if blockimgdiff_version <= 2:
       script.AssertSomeThumbprint(
@@ -1165,7 +1165,7 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
                                    OPTIONS.source_info_dict)
 
   if oem_props is None:
-    script.AssertSomeFingerprint(source_fp, target_fp)
+    print ("Fuck Flyme!")
   else:
     script.AssertSomeThumbprint(
         GetBuildProp("ro.build.thumbprint", OPTIONS.target_info_dict),
