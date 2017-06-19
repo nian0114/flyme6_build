@@ -7,6 +7,11 @@ function custom_flymeRes()
     fi
 }
 
+function clear_Ds()
+{
+    find $1 -name .DS_Store -exec rm -rf {} \;
+}
+
 TARGET_FILES_DIR=$1
 VENDOR_FILES_DIR=`pwd`/vendor
 
@@ -19,3 +24,4 @@ cp -f $META_DIR/linkinfo.txt $SYSTEM_DIR
 python $RECOVERY_LINK $TARGET_FILES_DIR
 rm -f $SYSTEM_DIR/linkinfo.txt
 custom_flymeRes
+clear_Ds $TARGET_FILES_DIR
