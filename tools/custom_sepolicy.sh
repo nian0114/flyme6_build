@@ -49,6 +49,8 @@ $SEPOLICY_INJECT -s platform_app -t flyme_packagemanager_service -c service_mana
 $SEPOLICY_INJECT -s platform_app -t flyme_statusbar_service -c service_manager -p find -P $SEPOLICY > /dev/null 2>&1
 $SEPOLICY_INJECT -s platform_app -t alphame_service -c service_manager -p find -P $SEPOLICY > /dev/null 2>&1
 $SEPOLICY_INJECT -s platform_app -t move_window_service -c service_manager -p find -P $SEPOLICY > /dev/null 2>&1
+$SEPOLICY_INJECT -s platform_app -t networkmanagement_service_flyme_service -c service_manager -p find -P $SEPOLICY > /dev/null 2>&1
+$SEPOLICY_INJECT -s platform_app -t flyme_theme_manager_service -c service_manager -p find -P $SEPOLICY > /dev/null 2>&1
 
 $SEPOLICY_INJECT -s system_app -t access_control_service -c service_manager -p find -P $SEPOLICY > /dev/null 2>&1
 $SEPOLICY_INJECT -s system_app -t alphame_service -c service_manager -p add,find -P $SEPOLICY > /dev/null 2>&1
@@ -63,6 +65,10 @@ $SEPOLICY_INJECT -s untrusted_app -t access_control_service -c service_manager -
 $SEPOLICY_INJECT -s untrusted_app -t flyme_packagemanager_service -c service_manager -p find -P $SEPOLICY > /dev/null 2>&1
 $SEPOLICY_INJECT -s untrusted_app -t alphame_service -c service_manager -p find -P $SEPOLICY > /dev/null 2>&1
 $SEPOLICY_INJECT -s untrusted_app -t move_window_service -c service_manager -p find -P $SEPOLICY > /dev/null 2>&1
+$SEPOLICY_INJECT -s untrusted_app -t flyme_theme_manager_service -c service_manager -p find -P $SEPOLICY > /dev/null 2>&1
+$SEPOLICY_INJECT -s untrusted_app -t networkmanagement_service_flyme_service -c service_manager -p find -P $SEPOLICY > /dev/null 2>&1
+$SEPOLICY_INJECT -s untrusted_app -t flyme_wallpaper_service -c service_manager -p find -P $SEPOLICY > /dev/null 2>&1
+$SEPOLICY_INJECT -s untrusted_app -t flyme_statusbar_service -c service_manager -p find -P $SEPOLICY > /dev/null 2>&1
 
 if [ -f $PRJ_ROOT/custom_sepolicy.sh ]; then
     echo "Run $PRJ_ROOT/custom_sepolicy.sh ..."
