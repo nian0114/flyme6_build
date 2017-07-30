@@ -408,10 +408,21 @@ function pullSpecialSelabelFile {
 
 # build the SYSTEM dir under target_files
 function buildSystemDir {
-
-  echo ">> retrieve whole /system from device (time-costly, be patient) ..."
-
-  cp -rpf  /Users/nian/Downloads/miui_MI5SPlus_6.12.8_a4b6f9b567_6.0/system/* $SYSTEM_DIR
+    echo ">> retrieve whole /system from device (time-costly, be patient) ..."
+        if [ $FROM_DAT != 1 ];then
+    adb pull /system $SYSTEM_DIR 2>&1 | tee $OUT_DIR/system-pull.log
+    find $SYSTEM_DIR -name su | xargs rm -f
+    find $SYSTEM_DIR -name .suv | xargs rm -f
+    find $SYSTEM_DIR -name invoke-as | xargs rm -f
+    if [ $FROM_RECOVERY == 0 ];then
+		    dealwithSystemPullLog $OUT_DIR/system-pull.log
+fi
+	else
+	    sudo chown -R $USER:$USER system
+	    mkdir -p $SYSTEM_DIR
+            rm -rf $SYSTEM_DIR/*
+            cp -rf system/* $SYSTEM_DIR
+	fi
     echo "<< retrieve whole /system from device (time-costly, be patient) done"
 }
 
