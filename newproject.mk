@@ -120,7 +120,7 @@ $(VENDOR_TARGET_ZIP): $(VENDOR_RECOVERY_FSTAB)
 	$(hide) rm -rf $(VENDOR_TARGET_DIR)
 	$(hide) cp -r $(VENDOR_DIR) $(VENDOR_TARGET_DIR)
 	$(hide) echo ">>> recover the link files for $(VENDOR_TARGET_DIR) ..."
-	$(hide) $(RECOVERY_LINK) $(VENDOR_TARGET_DIR)/META/linkinfo.txt $(VENDOR_TARGET_DIR);
+	$(PORT_CUSTOM_TARGET_FILES) $(VENDOR_TARGET_DIR)
 	$(hide) echo "<<< recover the link files for $(VENDOR_TARGET_DIR) done"
 	$(hide) mv $(VENDOR_TARGET_DIR)/system $(VENDOR_TARGET_DIR)/SYSTEM
 	$(hide) rm -rf $(VENDOR_TARGET_DIR)/BOOTABLE_IMAGES
