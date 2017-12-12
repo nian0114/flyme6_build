@@ -41,8 +41,8 @@ class Options(object):
         "darwin": "out/host/darwin-x86",
     }
 
-    self.search_path = os.path.join(os.environ["PORT_BUILD"], "tools");
-    self.signapk_path = "signapk.jar"  # Relative to search_path
+    self.search_path = os.path.join(os.environ["PORT_BUILD"], "tools", sys.platform + "-x86");
+    self.signapk_path = "../signapk.jar"  # Relative to search_path
     self.signapk_shared_library_path = "lib64"   # Relative to search_path
     self.extra_signapk_args = []
     self.java_path = "java"  # Use the one on the path by default.
