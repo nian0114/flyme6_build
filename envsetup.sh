@@ -5,6 +5,7 @@
 TOPFILE=build/envsetup.sh
 PROJECT_MAX_DEPTH=3
 JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+HOST_OS=$(uname -s | tr '[A-Z]' '[a-z]')
 
 if [ -f $TOPFILE ] ; then
    PORT_ROOT=$PWD
@@ -24,13 +25,13 @@ fi
 if [ -n "$PORT_ROOT" ]; then
     MATCH=$(echo $PATH | grep $PORT_ROOT)
     if [ "$MATCH" = "" ];then
-		PATH=$PORT_ROOT/tools:$PATH
+		PATH=$PORT_ROOT/tools:$PORT_ROOT/tools/${HOST_OS}-x86:$PATH
 		LD_LIBRARY_PATH=$PORT_ROOT/build/lib/:$LD_LIBRARY_PATH
 	export PATH LD_LIBRARY_PATH
     fi
     PORT_BUILD="$PORT_ROOT/build"
     #echo "set port_build, PORT_BUILD:$PORT_BUILD"
-    export PORT_ROOT PORT_BUILD
+    export PORT_ROOT PORT_BUILD HOST_OS
 fi
 
 if [ -d $JAVA_HOME ]; then
