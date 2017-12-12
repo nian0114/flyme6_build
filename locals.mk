@@ -287,7 +287,7 @@ OUT_ODEX_META      := $(OUT_ODEX_DIR)/META
 # the dalvik vm build version
 # which will be used for preodex
 DEFAULT_DALVIK_VM_BUILD := 27
-DEXOPT_LIBS             := $(PORT_ROOT)/build/lib
+DEXOPT_LIBS             := $(PORT_ROOT)/build/$(HOST_OS)-x86/lib
 ################## target for server ######################
 PRJ_TARGET_FILE_ODEX        := $(OUT_DIR)/target_files.zip.odex.zip
 
@@ -322,8 +322,8 @@ endif
 VENDOR_BUILD_PROP       := $(VENDOR_SYSTEM)/build.prop
 
 ###################### tools in path ######################
-AAPT           := aapt
-ZIPALIGN       := zipalign
+AAPT           := $(PORT_ROOT)/tools/$(HOST_OS)-x86/aapt
+ZIPALIGN       := $(PORT_ROOT)/tools/$(HOST_OS)-x86/zipalign
 
 ############### tools in $(PORT_BUILD)/tools ##############
 PORT_BUILD_TOOLS         := $(PORT_BUILD)/tools
