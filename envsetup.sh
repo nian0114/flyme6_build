@@ -111,7 +111,7 @@ if [ -f $PORT_BUILD/custom/Makefile ]; then
     cp $PORT_BUILD/custom/Makefile $PORT_ROOT
 fi
 
-SIMGTOIMG=$PORT_BUILD/tools/bin/simg2img
+SIMGTOIMG=$PORT_BUILD/tools/$HOST_OS-x86/bin/simg2img
 function unpack_systemimg()
 {
     local systemimg=$1
