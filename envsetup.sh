@@ -34,13 +34,16 @@ if [ -n "$PORT_ROOT" ]; then
     export PORT_ROOT PORT_BUILD HOST_OS
 fi
 
-if [ -d $JAVA_HOME ]; then
-    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-    export PATH=$JAVA_HOME/bin:$PATH
-    export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
-else
-    echo "Failed! OpenJDK 8 Not install!"
-    return
+
+if [ $HOST_OS == "linux" ];then
+    if [ -d $JAVA_HOME ]; then
+        export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+        export PATH=$JAVA_HOME/bin:$PATH
+        export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
+    else
+        echo "Failed! OpenJDK 8 Not install!"
+        return
+    fi
 fi
 
 # Command "coron" complete
