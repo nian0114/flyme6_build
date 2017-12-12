@@ -385,7 +385,7 @@ FLASH                := $(PORT_TOOLS)/bootimgpack/flash.py
 DEEFAULT_PERMISSION  ?= 644
 
 SEFCONTEXT_TOOL := $(PORT_TOOLS)/reverses/sefcontext/sefcontext
-SEFCONTEXT_COMPILE_TOOL := $(PORT_BUILD_TOOLS)/bin/sefcontext_compile
+SEFCONTEXT_COMPILE_TOOL := $(PORT_BUILD_TOOLS)/$(HOST_OS)-x86/bin/sefcontext_compile
 
 ################### tools for project ####################
 PRJ_CUSTOM_TARGETFILES := $(PRJ_ROOT)/custom_targetfiles.sh
