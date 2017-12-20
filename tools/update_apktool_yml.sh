@@ -3,7 +3,7 @@
 if [ $HOST_OS == "darwin" ];then
   APKTOOL_IF_FRAMEWORK_DIR=~/Library/apktool/framework
 else
-	APKTOOL_IF_FRAMEWORK_DIR=~/apktool/framework
+	APKTOOL_IF_FRAMEWORK_DIR=~/.local/share/apktool/framework
 fi
 
 function isFrameworkApk()

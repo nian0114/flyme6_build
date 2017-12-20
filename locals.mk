@@ -105,7 +105,7 @@ APKTOOL_MERGED_TAG := merged_$(PRJ_NAME)
 ifeq ($(strip $(HOST_OS)),darwin)
 APKTOOL_FRAME_PATH_BOARD_MODIFY := ~/Library/apktool/framework/board_modify
 else
-APKTOOL_FRAME_PATH_BOARD_MODIFY := ~/apktool/framework/board_modify
+APKTOOL_FRAME_PATH_BOARD_MODIFY :=  ~/.local/share/apktool/framework/board_modify
 endif
 
 ################## board's bootanimation ####################
